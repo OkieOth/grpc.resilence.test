@@ -545,11 +545,11 @@ on both sides).
 
 ## Sequencing summary
 
-| Step | Deliverable | Depends on |
-|------|-------------|------------|
-| 1 | Toolchain, `go/api/` generated code, `.gitignore`, `gen` target | — |
-| 2 | `cmd/server` (CLI + behavior parity) | 1 |
-| 3 | `cmd/client` (CLI + reconnect + signals) | 1, 2 |
-| 4 | Full `Makefile` + placeholder test | 2, 3 |
-| 5 | `tests/` package — all 7 integration tests | 4 |
-| 6 | `go/README.md`, root README, final parity verification | 5 |
+| Done | Step | Deliverable | Depends on |
+|---|------|-------------|------------|
+|   | 1 | Toolchain, `go/api/` generated code, `.gitignore`, `gen` target | — |
+|   | 2 | `cmd/server` (CLI + behavior parity) | 1 |
+|   | 3 | `cmd/client` (CLI + reconnect + signals) | 1, 2 |
+|   | 4 | Full `Makefile` + placeholder test | 2, 3 |
+|   | 5 | `tests/` package — all 7 integration tests | 4 |
+|   | 6 | `go/README.md`, root README, final parity verification | 5 |

@@ -678,11 +678,11 @@ sides).
 
 ## Sequencing summary
 
-| Step | Deliverable | Depends on |
-|------|-------------|------------|
-| 1 | `Cargo.toml`, `build.rs`, `lib.rs`, generated API, `.gitignore` | — |
-| 2 | `src/bin/server.rs` + `src/logfmt.rs` (CLI + behavior parity) | 1 |
-| 3 | `src/bin/client.rs` (CLI + reconnect + signals) | 1, 2 |
-| 4 | Full `Makefile` + placeholder test | 2, 3 |
-| 5 | `tests/` — all 7 integration tests | 4 |
-| 6 | `rust/README.md`, root README, final parity verification | 5 |
+| Done | Step | Deliverable | Depends on |
+|---|------|-------------|------------|
+|   | 1 | `Cargo.toml`, `build.rs`, `lib.rs`, generated API, `.gitignore` | — |
+|   | 2 | `src/bin/server.rs` + `src/logfmt.rs` (CLI + behavior parity) | 1 |
+|   | 3 | `src/bin/client.rs` (CLI + reconnect + signals) | 1, 2 |
+|   | 4 | Full `Makefile` + placeholder test | 2, 3 |
+|   | 5 | `tests/` — all 7 integration tests | 4 |
+|   | 6 | `rust/README.md`, root README, final parity verification | 5 |

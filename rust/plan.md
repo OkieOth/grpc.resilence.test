@@ -603,17 +603,24 @@ lib):
 
 ```bash
 cd rust
-cargo test -v                # 7 tests, all pass (2 binaries: 3 + 4)
+cargo test -v                # 9 tests (3 + 4 + 1 + 1), all pass
 make test
 cargo test                   # second run — check for flakiness/state leakage
 pgrep -f "target/debug/server" || echo "no leftover servers"   # after the run
 ```
 
-**Definition of done:** 7/7 tests pass in `make test`, twice in a row; no
+**Definition of done:** All tests pass in `make test`, twice in a row; no
 leftover server processes; also verify (keepalive sanity) that the 1s/500ms
 test-client keepalive does **not** trip any server-side enforcement
 (design decision 7) — visible as unexpected `Connection lost` lines or
 flaky failures.
+
+**Note on implementation:** The test's `run_client` must share a single `tx`/`rx`
+channel between sender and receiver tasks — the sender writes to `tx` and the
+server reads from `rx` (inside the request's `ReceiverStream`). The response
+stream (separate) delivers pongs back. Additionally, the `tokio::select!`
+for duration-based exit must use `biased` with `sleep_until(deadline)` to
+ensure the duration timer fires correctly alongside the interval timer.
 
 ---
 
@@ -680,9 +687,9 @@ sides).
 
 | Done | Step | Deliverable | Depends on |
 |---|------|-------------|------------|
-|   | 1 | `Cargo.toml`, `build.rs`, `lib.rs`, generated API, `.gitignore` | — |
-|   | 2 | `src/bin/server.rs` + `src/logfmt.rs` (CLI + behavior parity) | 1 |
-|   | 3 | `src/bin/client.rs` (CLI + reconnect + signals) | 1, 2 |
-|   | 4 | Full `Makefile` + placeholder test | 2, 3 |
-|   | 5 | `tests/` — all 7 integration tests | 4 |
-|   | 6 | `rust/README.md`, root README, final parity verification | 5 |
+| ✓ | 1 | `Cargo.toml`, `build.rs`, `lib.rs`, generated API, `.gitignore` | — |
+| ✓ | 2 | `src/bin/server.rs` + `src/logfmt.rs` (CLI + behavior parity) | 1 |
+| ✓ | 3 | `src/bin/client.rs` (CLI + reconnect + signals) | 1, 2 |
+| ✓ | 4 | Root `Makefile` (rust targets) + placeholder test | 2, 3 |
+| ✓ | 5 | `tests/` — 9 integration tests (3 single + 4 multi + 1 quick + 1 placeholder) | 4 |
+| ✓ | 6 | `rust/README.md`, root README (Rust section), `cargo fmt` + `cargo clippy` clean | 5 |

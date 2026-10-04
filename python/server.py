@@ -29,32 +29,46 @@ class ResilienceServicer(resilience_pb2_grpc.ResilienceServiceServicer):
 
     def Stream(self, request_iterator, context):
         """Receive client pings and send Pong responses."""
+        # Extract client_id from gRPC metadata (set by client on call).
+        client_id = None
+        if context.invocation_metadata():
+            for key, value in context.invocation_metadata():
+                if key == "client-id":
+                    client_id = value
+                    break
+
         server_ping_id = 0
         last_send_time = 0.0
 
-        for req in request_iterator:
-            ping_id = req.ping.id
-            sender = req.ping.sender
-            log.info("Server received ping #%d from %s", ping_id, sender)
+        try:
+            for req in request_iterator:
+                ping_id = req.ping.id
+                sender = req.ping.sender
+                log.info("Server received ping #%d from %s", ping_id, sender)
 
-            # Respect the server's configured send interval.
-            now = time.time()
-            elapsed = now - last_send_time
-            if elapsed >= self.ping_interval_s:
-                server_ping_id += 1
-                last_send_time = now
-                log.info("Server sending Pong #%d", server_ping_id)
-                yield resilience_pb2.BidirectionalStreamResponse(
-                    pong=resilience_pb2.Pong(id=server_ping_id, sender="server")
-                )
-            else:
-                log.debug(
-                    "Skipping response (elapsed=%.3fs < %fs)",
-                    elapsed,
-                    self.ping_interval_s,
-                )
-
-        log.info("Connection closed (peer=%s)", self._peer(context))
+                # Respect the server's configured send interval.
+                now = time.time()
+                elapsed = now - last_send_time
+                if elapsed >= self.ping_interval_s:
+                    server_ping_id += 1
+                    last_send_time = now
+                    log.info("Server sending Pong #%d to %s", server_ping_id, sender)
+                    yield resilience_pb2.BidirectionalStreamResponse(
+                        pong=resilience_pb2.Pong(id=server_ping_id, sender="server")
+                    )
+                else:
+                    log.debug(
+                        "Skipping response (elapsed=%.3fs < %fs)",
+                        elapsed,
+                        self.ping_interval_s,
+                    )
+        except grpc.RpcError as exc:
+            log.warning(
+                "Connection lost (client=%s, peer=%s, reason=%s)",
+                client_id, self._peer(context), str(exc),
+            )
+        else:
+            log.info("Connection closed (client=%s, peer=%s)", client_id, self._peer(context))
 
     @staticmethod
     def _peer(context) -> str:

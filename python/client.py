@@ -61,7 +61,10 @@ class ResilienceClient:
                 stub = resilience_pb2_grpc.ResilienceServiceStub(channel)
 
                 try:
-                    stream = stub.Stream(self._request_generator(ping_interval_s))
+                    stream = stub.Stream(
+                        self._request_generator(ping_interval_s),
+                        metadata=[("client-id", self.client_id)],
+                    )
                     for response in stream:
                         if response.HasField("pong"):
                             log.info("Client received Pong #%d from %s",

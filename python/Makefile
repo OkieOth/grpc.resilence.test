@@ -6,6 +6,7 @@
 #    server     – start the gRPC server in the background  (server.py)
 #    run        – start the gRPC server in the foreground
 #    client     – run the gRPC client    (client.py)
+#    test       – run integration tests
 #    clean      – remove generated files and bytecode
 #    kill-server – stop any running server
 #    kill-client – stop any running client
@@ -21,6 +22,9 @@ SHELL := /bin/bash
 # The proto file is always at the repo root.
 PROTO  := ../api/resilience.proto
 PY_API := api
+
+# Test configuration
+TEST_TIMEOUT ?= 60  # seconds per test
 
 # ── Generate protobuf & gRPC Python bindings ────────────────────────
 .PHONY: gen
@@ -88,6 +92,11 @@ clean:
 	@rm -rf ../temp/server.log
 	@echo "Cleaned generated files."
 
+# ── Integration Tests ──────────────────────────────────────────────
+.PHONY: test
+test:
+	@uv run pytest tests/ -v -x --timeout=$(TEST_TIMEOUT) --tb=short
+
 # ── Help ────────────────────────────────────────────────────────────
 .PHONY: help
 help:
@@ -99,6 +108,7 @@ help:
 	@echo "  kill-server    Stop only the running server"
 	@echo "  kill-client    Stop only the running client"
 	@echo "  kill           Stop server and client"
+	@echo "  test           Run integration tests"
 	@echo "  clean          Remove generated files"
 	@echo "  help           Show this message"
 	@echo ""

@@ -8,3 +8,9 @@ dependencies = [
     "grpcio-tools",
     "protobuf",
 ]
+
+[dependency-groups]
+test = [
+    "pytest",
+    "pytest-timeout",
+]

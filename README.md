@@ -13,6 +13,12 @@ All tests are using the same API for the tests. The protobuf file is here:
 
 # Usage
 
+## Running tests
+
+```bash
+cd python && make test
+```
+
 ## Python
 
 First, generate protobuf / gRPC bindings (one-time):

@@ -22,6 +22,13 @@ make client TARGET=localhost:50051
 make kill
 ```
 
+## Running integration tests
+
+```bash
+make test         # starts a server, runs all tests, cleans up
+make test TEST_TIMEOUT=120  # longer timeout per test
+```
+
 ## Architecture
 
 ```

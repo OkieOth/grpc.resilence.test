@@ -7,14 +7,16 @@ service designed to test connection resilience under error conditions.
 ## Quick start
 
 ```bash
-# 1. Generate protobuf / gRPC bindings
+# 1. Generate protobuf / gRPC bindings (from python/ directory)
 make gen
 
-# 2. Start the server (port 50051)
+# 2a. Start the server in the background (port 50051)
 make server
+# 2b. Or in the foreground (blocks until Ctrl-C):
+# make server-foreground   (also aliased as `make run`)
 
 # 3. In another terminal, run the client
-make client-default
+make client TARGET=localhost:50051
 
 # 4. Stop server / client
 make kill
@@ -93,7 +95,9 @@ interval while processing incoming client pings:
 | Argument | Default | Meaning |
 |---|---|---|
 | port (positional) | 50051 | Port to listen on |
-| `--ping-interval-ms` | 500 | Milliseconds between server Pong messages |
+| `--ping-interval-ms` | 500 | Milliseconds between application-level Pong messages |
+| `--keepalive-time-sec` | 10 | gRPC transport-level keepalive interval (HTTP/2 PING frames) |
+| `--keepalive-timeout-sec` | 5 | Keepalive timeout – seconds to wait for PING ack |
 
 The server:
 
@@ -110,8 +114,8 @@ The client connects to a gRPC server, opens a bidirectional stream, and sends
 Pings at a configurable interval while receiving server Pongs.
 
 ```bash
-make client-default          # defaults (500 ms interval)
-make client TARGET=host:port  # custom target (set with shell vars)
+make client TARGET=localhost:50051          # explicit target
+make client TARGET=localhost:50051 CLIENT_ID=alpha PING_INTERVAL_MS=2000  # custom params
 ```
 
 Custom arguments are available via the command line:
@@ -164,11 +168,20 @@ make kill
 This stops all running server and client processes (by process matching with
 `pkill`).
 
+## Server log
+
+The background server writes its log to `../temp/server.log` (relative to the
+`python/` directory). Use `cat` or `tail -f` to monitor it:
+
+```bash
+tail -f ../temp/server.log
+```
+
 ## File layout
 
 ```
 python/
-├── Makefile                     ← project-level Makefile (see repo root)
+├── Makefile                     ← project-level Makefile (gRPC stub gen, server, client, kill)
 ├── pyproject.toml               ← uv dependencies
 ├── README.md                    ← this file
 ├── server.py                    ← ResilienceService server

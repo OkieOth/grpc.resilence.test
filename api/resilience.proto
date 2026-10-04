@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package resilience;
+
+option go_package = "github.com/example/grpc-resilience/api";
+
+// ResilienceService provides a bidirectional streaming ping/pong exchange
+// between client and server.  Both endpoints send messages continuously at
+// configurable intervals and log every send/receive.
+service ResilienceService {
+  rpc Stream(stream BidirectionalStreamRequest) returns (stream BidirectionalStreamResponse);
+}
+
+message BidirectionalStreamRequest {
+  Ping ping = 1;
+}
+
+message Ping {
+  int32 id = 1;
+  string sender = 2;
+}
+
+message Pong {
+  int32 id = 1;
+  string sender = 2;
+}
+
+// Error is emitted by the server in response to a Ping to simulate an error
+// surfacing on an already-established stream. The id must match the request.
+message Error {
+  int32 id = 1;
+  string message = 2;
+  int32 code = 3;
+}
+
+message BidirectionalStreamResponse {
+  oneof payload {
+    Pong pong = 1;
+    Error error = 2;
+  }
+}

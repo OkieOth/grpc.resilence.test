@@ -1,0 +1,10 @@
+[project]
+name = "resilience-python"
+version = "0.1.0"
+description = "ResilienceService gRPC client and server (Python)"
+requires-python = ">=3.10"
+dependencies = [
+    "grpcio",
+    "grpcio-tools",
+    "protobuf",
+]

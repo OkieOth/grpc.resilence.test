@@ -38,7 +38,7 @@ gen:
 # ── Build ───────────────────────────────────────────────────────────
 .PHONY: build
 build:
-	@cd rust && cargo build
+	cargo build
 
 # ── Server ──────────────────────────────────────────────────────────
 .PHONY: server
